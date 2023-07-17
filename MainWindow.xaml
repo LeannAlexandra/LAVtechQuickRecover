@@ -5,29 +5,44 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LAVtechQuickRecover"
         mc:Ignorable="d"
-        Title="QuickRecover by LAVtech" SizeToContent="WidthAndHeight" Height="355" MinHeight="355" MaxHeight="570" Width="430" MaxWidth="430" MinWidth="430">
-    <Grid Height="345" VerticalAlignment="Top">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="72*"/>
-            <ColumnDefinition Width="780*"/>
-            <ColumnDefinition Width="72*"/>
-        </Grid.ColumnDefinitions>
-        <ComboBox x:Name="sourceFileCB" Grid.Column="1" HorizontalAlignment="Left" Margin="18,59,0,0" VerticalAlignment="Top" Width="145"/>
-        <Label Grid.Column="1" Content="Input Directory:" HorizontalAlignment="Left" Margin="18,28,0,0" VerticalAlignment="Top" Width="84"/>
-        <ComboBox x:Name="destinationFolderCB" Grid.Column="1" HorizontalAlignment="Left" Margin="18,158,0,0" VerticalAlignment="Top" Width="153"/>
-        <Label Grid.Column="1" Content="Destination Directory:" Margin="18,127,18,0" VerticalAlignment="Top"/>
-        <ComboBox x:Name="fileTypeCB" Grid.Column="1" Margin="0,59,18,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153" SelectionChanged="FileTypeCB_SelectionChanged"/>
-        <Label Grid.Column="1" Content="File Types" Margin="0,28,18,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153"/>
-        <Expander Grid.Column="1" Height="22" Header="Advanced Options" Margin="18,94,18,0" VerticalAlignment="Top">
-            <TreeView x:Name="inputFileTreeView"/>
-        </Expander>
-        <Button x:Name="copyBtn" Grid.Column="1" Content="Copy Files" Margin="27,239,0,0" Padding="20,20" BorderThickness="2" BorderBrush="DarkGreen" VerticalAlignment="Top" Click="Copy_Click" HorizontalAlignment="Left" Width="144"/>
-        <Button x:Name="doneBtn" Grid.Column="1" Content="Done" Margin="191,239,0,0" Padding="20,20" BorderThickness="2" BorderBrush="DarkRed" VerticalContentAlignment="Center" VerticalAlignment="Top" Click="Done_Click" HorizontalAlignment="Left" Width="144"/>
-        <TextBox x:Name="customFolderNameTB" Grid.Column="1" Margin="0,158,18,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Padding="2" HorizontalAlignment="Right" Width="153" TextChanged="CustomFolderNameTB_TextChanged"/>
-        <Expander Grid.Column="1" Height="022" Header="Advanced Options" Margin="18,191,18,0" VerticalAlignment="Top">
-            <TreeView x:Name="outputFileTreeView"/>
-        </Expander>
-        <CheckBox x:Name="preserveFileStructureCB" Grid.Column="1" Content="Preserve Folder Structure" HorizontalAlignment="Left" Margin="191,133,0,0" VerticalAlignment="Top" RenderTransformOrigin="-4.875,0.365" Width="171" Checked="CheckBox_Checked"/>
+        Title="QuickRecover by LAVtech" SizeToContent="WidthAndHeight" Height="355" MinHeight="355" MaxHeight="570" Width="430" MaxWidth="430" MinWidth="430" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent">
+    <Border CornerRadius="25" BorderBrush="Black" BorderThickness="2" Padding="6" Background="GhostWhite">
+        <Grid Height="345" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
 
-    </Grid>
+                <ColumnDefinition Width="780*"/>
+
+            </Grid.ColumnDefinitions>
+            <ComboBox x:Name="sourceFileCB" HorizontalAlignment="Left" Margin="35,120,0,0" VerticalAlignment="Top" Width="145"/>
+            <Label Content="Input Directory:" HorizontalAlignment="Left" Margin="35,89,0,0" VerticalAlignment="Top" Width="86"/>
+            <ComboBox x:Name="destinationFolderCB" HorizontalAlignment="Left" Margin="35,217,0,0" VerticalAlignment="Top" Width="153"/>
+            <Label Content="Destination Directory:" Margin="35,186,207,0" VerticalAlignment="Top"/>
+            <ComboBox x:Name="fileTypeCB" Margin="0,120,35,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153" SelectionChanged="FileTypeCB_SelectionChanged"/>
+            <Label Content="File Types" Margin="0,89,35,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153"/>
+            <Expander Height="22" Header="Advanced Options" Margin="35,155,35,0" VerticalAlignment="Top" IsEnabled="False" Visibility="Hidden">
+                <TreeView x:Name="inputFileTreeView"/>
+            </Expander>
+            <Button x:Name="copyBtn" Content="Copy Files" Margin="35,275,0,0" Padding="20,10" BorderThickness="2" BorderBrush="DarkGreen" VerticalAlignment="Top" Click="Copy_Click" HorizontalAlignment="Left" Width="144"/>
+            <Button x:Name="doneBtn" Content="Done" Margin="235,275,35,0" Padding="20,10" BorderThickness="2" BorderBrush="DarkRed" VerticalContentAlignment="Center" VerticalAlignment="Top" Click="Done_Click"/>
+            <TextBox x:Name="customFolderNameTB" Margin="226,217,35,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Padding="2" TextChanged="CustomFolderNameTB_TextChanged"/>
+            <Expander Height="022" Header="Advanced Options" Margin="35,244,35,0" VerticalAlignment="Top" IsEnabled="False" Visibility="Hidden">
+                <TreeView x:Name="outputFileTreeView"/>
+            </Expander>
+            <CheckBox x:Name="preserveFileStructureCB" Content="Preserve Folder Structure" HorizontalAlignment="Left" Margin="226,191,0,0" VerticalAlignment="Top" RenderTransformOrigin="-4.875,0.365" Width="153" Checked="CheckBox_Checked"/>
+            <Label Content="LAVTech QuickRecover" HorizontalAlignment="Center" Margin="0,19,0,0" VerticalAlignment="Top" Opacity="0.995" FontSize="32" Grid.Column="1"/>
+            <Label x:Name="inputFileFeedback" Content="" HorizontalAlignment="Center" Margin="0,153,0,0" VerticalAlignment="Top" Width="344"/>
+            <Label x:Name="copiedFeedback" Content="" HorizontalAlignment="Center" Margin="0,242,0,0" VerticalAlignment="Top" Width="344"/>
+            <StatusBar x:Name="loadingIndicator" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50,0,50,0" Background="Transparent" Visibility="Hidden">
+                <Ellipse x:Name="loadingCircle" Height="200" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Ellipse.Stroke>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="Black"/>
+                            <GradientStop Color="White" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Ellipse.Stroke>
+                </Ellipse>
+            </StatusBar>
+
+        </Grid>
+    </Border>
 </Window>

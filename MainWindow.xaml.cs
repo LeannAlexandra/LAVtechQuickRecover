@@ -54,22 +54,19 @@ namespace LAVtechQuickRecover
         string[] miscExtensions = { ".", ".blend"};
 
         private bool preserveFileStructure = false;
-        private bool testing=false;
+        private bool testing=true;
         private char driveLetter = 'E';
-        private string[] driveOptions= Array.Empty<string>();
         List<char> driveOptionsList = new List<char>();
         List<string> extensions = new List<string>();
 
         public MainWindow()
         {
             InitializeComponent();
-            //Console.WriteLine("IT WORKS!");
-            extensions.Add("txt");//as test
-
             //DO THE FOLLOWING ASYNC - each with a 'ready' flag. - activate buttons only when ready.
             LoadDrives();
             LoadDriveOptions();
             LoadFileOptions();
+
             customFolderNameTB.Text = destinationFolderName;
         }
 
@@ -79,7 +76,12 @@ namespace LAVtechQuickRecover
             foreach(string file in fileOptions) { 
                 fileTypeCB.Items.Add(file);
             }
+
+            //set default. 
             fileTypeCB.SelectedIndex = 0;
+            extensions.AddRange(pictureExtensions);
+            extensions.AddRange(vectorGraphicsExtentions);
+
         }
         private void LoadDriveOptions()
         {
@@ -110,13 +112,14 @@ namespace LAVtechQuickRecover
         // EVENT LISTENERS
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
-            disableControls();
+            toggleControls(false); //set them not enabled
             string sourcePath = driveLetter + ":\\";
             string destinationPath = driveLetter + $":\\{destinationFolderName}\\";
          
             string[] allExtensions = extensions.ToArray();//ImageExtensions.Concat(DocumentExtensions);
 
             CopyFilesRecursively(sourcePath, destinationPath, allExtensions);
+            toggleControls(true);
         }
       
 
@@ -159,8 +162,12 @@ namespace LAVtechQuickRecover
                     //do everything  ;) that's why the last option is always all.
                     break;
             }
+            if (testing)
+            {
+                extensions.Clear();
+                extensions.Add(".txt");
 
-
+            }
             //if (testing)
             //    Console.WriteLine($"the current slection is: {choice}");
 
@@ -179,12 +186,25 @@ namespace LAVtechQuickRecover
                 }
             }
         }
-        private void disableControls() //disables ui for the duration of execution (also shows loading log :D)
-        { 
-            fileTypeCB.IsEnabled = false;
-            doneBtn.IsEnabled = false;
-            copyBtn.IsEnabled = false;
+        private void toggleControls(bool to = false) //disables ui for the duration of execution (also shows loading log :D)
+        {
+            fileTypeCB.IsEnabled = to;
+            doneBtn.IsEnabled = to;
+            copyBtn.IsEnabled = to;
+            copiedFeedback.Content = "";
+            inputFileFeedback.Content = "";
 
+            if (to) {
+                copiedFeedback.Visibility = Visibility.Hidden;
+                inputFileFeedback.Visibility = Visibility.Hidden;
+                loadingIndicator.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                copiedFeedback.Visibility = Visibility.Visible;
+                inputFileFeedback.Visibility = Visibility.Visible;
+                loadingIndicator.Visibility = Visibility.Visible;
+            }
         } 
 
         private void CustomFolderNameTB_TextChanged(object sender, TextChangedEventArgs e)
@@ -203,8 +223,10 @@ namespace LAVtechQuickRecover
 
                 foreach (string file in Directory.EnumerateFiles(sourceDirectory))
                 {
+                    SolidColorBrush myBrush = new SolidColorBrush(Colors.Red);
+                    loadingCircle.Stroke = myBrush;
                     string extension = Path.GetExtension(file);
-
+                    inputFileFeedback.Content = $"{file}";
                     if (extensions.Contains(extension))
                     {
                         string fileName = Path.GetFileName(file);
@@ -213,6 +235,7 @@ namespace LAVtechQuickRecover
                         try
                         {
                             File.Copy(file, destinationFile, true);
+                            copiedFeedback.Content = $"{fileName}"; //filename (adds directory)
                         }
                         catch (IOException ex)
                         {
@@ -253,7 +276,7 @@ namespace LAVtechQuickRecover
                 foreach (string file in Directory.EnumerateFiles(sourceDirectory))
                 {
                     string extension = Path.GetExtension(file);
-
+                    inputFileFeedback.Content = $"{file}";
                     if (extensions.Contains(extension))
                     {
                         string fileName = Path.GetFileName(file);
@@ -262,6 +285,7 @@ namespace LAVtechQuickRecover
                         try
                         {
                             File.Copy(file, destinationFile, true);
+                            copiedFeedback.Content = $"{file}";//file doesn't show the folder directory
                         }
                         catch (IOException ex)
                         {
