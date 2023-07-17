@@ -319,115 +319,11 @@ namespace LAVtechQuickRecover
             //string logFilePath = "error.log";
             //File.AppendAllText(logFilePath, $"{errorMessage}\n");
         }
-    }
-}
 
-
-
-/* CHATGPT CODE TO SNIP FROM
-
-using System.IO;
-using System.Windows;
-
-namespace YourNamespace
-{
-    public partial class MainWindow : Window
-    {
-        private string driveLetter = "C"; // Replace with the desired drive letter
-
-        public MainWindow()
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            InitializeComponent();
-        }
-
-        private void CopyPicturesButton_Click(object sender, RoutedEventArgs e)
-        {
-            string sourcePath = driveLetter + ":\\";
-            string destinationPath = driveLetter + ":\\allpictures\\";
-
-            string[] extensions = { ".png", ".jpg", ".jpeg", ".gif" };
-
-            foreach (string extension in extensions)
-            {
-                foreach (string file in Directory.EnumerateFiles(sourcePath, "*" + extension))
-                {
-                    string fileName = Path.GetFileName(file);
-                    string destinationFile = Path.Combine(destinationPath, fileName);
-
-                    File.Copy(file, destinationFile, true);
-                }
-            }
-
-            MessageBox.Show("Pictures copied successfully!");
-        }
-    }
-}
-############################################### VERSION 2 ################################### RECURSION
-
-using System.IO;
-using System.Linq;
-using System.Windows;
-
-namespace YourNamespace
-{
-    public partial class MainWindow : Window
-    {
-        // Define your extension list as constant arrays
-        private const string[] ImageExtensions = { ".png", ".jpg", ".jpeg", ".gif" };
-        private const string[] DocumentExtensions = { ".doc", ".docx", ".pdf" };
-
-        private string driveLetter = "C"; // Replace with the desired drive letter
-
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
-
-        private void CopyPicturesButton_Click(object sender, RoutedEventArgs e)
-        {
-            string sourcePath = driveLetter + ":\\";
-            string destinationPath = driveLetter + ":\\allpictures\\";
-
-            // Combine all extension lists into one
-            var allExtensions = ImageExtensions.Concat(DocumentExtensions);
-
-            // Call recursive method to copy files
-            CopyFilesRecursively(sourcePath, destinationPath, allExtensions);
-
-            MessageBox.Show("Pictures copied successfully!");
-        }
-
-        private void CopyFilesRecursively(string sourceDirectory, string destinationDirectory, IEnumerable<string> extensions)
-        {
-            Directory.CreateDirectory(destinationDirectory);
-
-            foreach (string file in Directory.EnumerateFiles(sourceDirectory))
-            {
-                string extension = Path.GetExtension(file);
-
-                if (extensions.Contains(extension))
-                {
-                    string fileName = Path.GetFileName(file);
-                    string destinationFile = Path.Combine(destinationDirectory, fileName);
-
-                    File.Copy(file, destinationFile, true);
-                }
-            }
-
-            foreach (string subdirectory in Directory.EnumerateDirectories(sourceDirectory))
-            {
-                // Skip the destination directory
-                if (subdirectory.Equals(destinationDirectory, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                string directoryName = Path.GetFileName(subdirectory);
-                string newDestinationDirectory = Path.Combine(destinationDirectory, directoryName);
-
-                // Recursive call to handle subdirectories
-                CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions);
-            }
+            preserveFileStructure = (bool)preserveFileStructureCB.IsChecked;
         }
     }
 }
 
-
-*/

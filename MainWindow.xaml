@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LAVtechQuickRecover"
         mc:Ignorable="d"
-        Title="QuickRecover by LAVtech" SizeToContent="WidthAndHeight" Height="355" MaxHeight="570" Width="430" MaxWidth="430" MinWidth="430">
+        Title="QuickRecover by LAVtech" SizeToContent="WidthAndHeight" Height="355" MinHeight="355" MaxHeight="570" Width="430" MaxWidth="430" MinWidth="430">
     <Grid Height="345" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="72*"/>
@@ -27,6 +27,7 @@
         <Expander Grid.Column="1" Height="022" Header="Advanced Options" Margin="18,191,18,0" VerticalAlignment="Top">
             <TreeView x:Name="outputFileTreeView"/>
         </Expander>
+        <CheckBox x:Name="preserveFileStructureCB" Grid.Column="1" Content="Preserve Folder Structure" HorizontalAlignment="Left" Margin="191,133,0,0" VerticalAlignment="Top" RenderTransformOrigin="-4.875,0.365" Width="171" Checked="CheckBox_Checked"/>
 
     </Grid>
 </Window>
