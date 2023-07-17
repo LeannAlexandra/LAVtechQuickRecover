@@ -36,12 +36,21 @@ namespace LAVtechQuickRecover
         private const char DEFAULT_DRIVE_LETTER = 'E';
         private string destinationFolderName = "LAVTechRecovery";
         private string[] fileOptions = { "Pictures", "Videos","Audio", "Documents", "Misc", "All" };
-        string[] pictureExtensions = { ".png", ".jpg", ".jpeg", ".gif", "tiff", ".tif" };
-        string[] vectorGraphicsExtentions = { ".EPS", ".AI", ".psd",".indd", ".raw" };
+        string[] pictureExtensions = { ".png", ".jpg", ".jpeg", ".gif", "tiff", ".tif", ".bmp" };
+        string[] vectorGraphicsExtentions = { ".EPS", ".AI", ".psd",".indd", ".raw", ".svg", ".cdr" };
         string[] audioExtensions = {".AIF", ".IFF", ".M3U", ".M4A", ".MID", ".MP3", ".MPA", ".WAV", ".WMA" };
         string[] videoExtensions = { ".3G2", ".3GP", ".ASF", ".AVI", ".FLV", ".M4V", ".MOV", ".MP4", ".MPG", ".RM", ".SRT", ".SWF", ".VOB", ".WMV" };
         string[] documentExtensions = { ".PDF", ".doc",".xlsx", "docx", ".xls", ".gif",".html",".htm", ".ODT", ".ODS", ".PPT", ".PPTX", ".TXT" };
-        string[] programmingExtentions = {".sln",".js", ".html", ".css", ".json", ".c", ".cpp", "cs", ".py", ".pyc", ".pyw", ".pyx", ".class", "", "", "", "", "", "", "" }; //(add exception for .gitignore files, same as git) )
+        string[] programmingExtentions = {".sln",".js", ".html", ".css", ".json", ".c", ".cpp", "cs", ".py", ".pyc", ".pyw", ".pyx", ".class" /*, "", "", "", "", "", "", ""*/ }; 
+        /// <summary>
+        /// Program to quickly extract selected file types from a drive to another drive. Specifically useful when upgrading your computer and just want to keep photos, documents or videos.
+        /// 
+        /// </summary>
+        /// 
+
+        //TODO: make a git-aware version of software developers. ;) 
+        //(add exception for .gitignore files, same as git) )
+
         string[] miscExtensions = { ".", ".blend"};
 
         private bool preserveFileStructure = false;
@@ -105,7 +114,7 @@ namespace LAVtechQuickRecover
             string sourcePath = driveLetter + ":\\";
             string destinationPath = driveLetter + $":\\{destinationFolderName}\\";
          
-            string[] allExtensions = {".txt" };//ImageExtensions.Concat(DocumentExtensions);
+            string[] allExtensions = extensions.ToArray();//ImageExtensions.Concat(DocumentExtensions);
 
             CopyFilesRecursively(sourcePath, destinationPath, allExtensions);
         }
@@ -119,24 +128,42 @@ namespace LAVtechQuickRecover
         private void FileTypeCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             extensions.Clear();
-            extensions.Add(".txt");
+            //extensions.Add(".txt");
             int choice = fileTypeCB.SelectedIndex;
-            
-            
-            
-            
-            if (testing)
-                Console.WriteLine($"the current slection is: {choice}");
+            switch (choice) { //I could've made an enum .. or finished this section before load shedding, I chose the latter
+                case 0: //0 Pictures 
+                    extensions.AddRange(pictureExtensions);
+                    extensions.AddRange(vectorGraphicsExtentions);
+                    break;
+                case 1: //1 videos
+                    extensions.AddRange(videoExtensions);
+                    break;
+                case 2: //2 Audio
+                    extensions.AddRange(audioExtensions);
+                    break;
+                case 3: //3 Documents
+                    extensions.AddRange(documentExtensions);
+                    break;
+                case 4: //4 Misc //programming, blend, unreal, git....
+                        //throws unimplemented exception ;)
+                    extensions.AddRange(programmingExtentions);
+                    break;
+                case 5:
+                default:
+                    extensions.AddRange(pictureExtensions);
+                    extensions.AddRange(documentExtensions);
+                    extensions.AddRange(videoExtensions);
+                    extensions.AddRange(programmingExtentions);
+                    extensions.AddRange(vectorGraphicsExtentions);
+                    extensions.AddRange(audioExtensions);
+                    //do everything  ;) that's why the last option is always all.
+                    break;
+            }
 
 
-            /*
-             * 0 Pictures
-             * 1 videos
-             * 2 Audio
-             * 3 Documents
-             * 4 Misc //programming, blend, unreal, git.... actually do as .gitignore says.** also with .git -> preserve the file structure etc . 
-             * 5 All
-             */
+            //if (testing)
+            //    Console.WriteLine($"the current slection is: {choice}");
+
 
         }
         private void LoadDrives()
