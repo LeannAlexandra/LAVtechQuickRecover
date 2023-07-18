@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 //using System.Windows.Forms; //FOR THE MESSAGE BOX AND DIALOG RESUTL
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -52,10 +54,12 @@ namespace LAVtechQuickRecover
         //(add exception for .gitignore files, same as git) )
 
         string[] miscExtensions = { ".", ".blend"};
+        private Thread processingThread;
 
         private bool preserveFileStructure = false;
         private bool testing=true;
         private char driveLetter = 'E';
+        private bool operationInProgress = false;
         List<char> driveOptionsList = new List<char>();
         List<string> extensions = new List<string>();
 
@@ -66,8 +70,23 @@ namespace LAVtechQuickRecover
             LoadDrives();
             LoadDriveOptions();
             LoadFileOptions();
-
+            //toggleControls();
+            //showLoading();
             customFolderNameTB.Text = destinationFolderName;
+            //var task = Task.Run(async () => {
+                
+            //    for (; ; )
+            //    {
+
+
+            //        if (!operationInProgress) {
+            //            await Task.Delay(1000);
+            //            continue;
+            //        }
+            //        await Task.Delay(100);
+            //        Console.WriteLine("Hello World after .1 seconds");
+            //    }
+            //});
         }
 
         //INITIALIZATION EVENTS
@@ -110,17 +129,30 @@ namespace LAVtechQuickRecover
 
 
         // EVENT LISTENERS
-        private void Copy_Click(object sender, RoutedEventArgs e)
+        private async void Copy_Click(object sender, RoutedEventArgs e)
         {
-            toggleControls(false); //set them not enabled
-            string sourcePath = driveLetter + ":\\";
-            string destinationPath = driveLetter + $":\\{destinationFolderName}\\";
-         
-            string[] allExtensions = extensions.ToArray();//ImageExtensions.Concat(DocumentExtensions);
+            if (operationInProgress)
+               return;
 
-            CopyFilesRecursively(sourcePath, destinationPath, allExtensions);
-            toggleControls(true);
-        }
+            toggleControls(operationInProgress); //set them not enabled -> Show Loading
+
+                Console.WriteLine("IT's NO RUNNINGWE's JUST AN IDIOTS");
+                string sourcePath = driveLetter + ":\\";
+                string destinationPath = driveLetter + $":\\{destinationFolderName}\\";
+
+                string[] allExtensions = extensions.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();//ImageExtensions.Concat(DocumentExtensions);
+            try
+            {
+
+                await CopyFilesRecursively(sourcePath, destinationPath, allExtensions);// doesnt want to happy async ... yet
+                Console.WriteLine("IT's DONE COPYING, WE's JUST AN IDIOTS");
+            }
+            catch (Exception ex) { LogError($"An error occurred: {ex.Message}"); }
+            finally {
+
+                toggleControls(operationInProgress);
+            }
+}
       
 
         private void Done_Click(object sender, RoutedEventArgs e)
@@ -188,24 +220,36 @@ namespace LAVtechQuickRecover
         }
         private void toggleControls(bool to = false) //disables ui for the duration of execution (also shows loading log :D)
         {
+            operationInProgress = !operationInProgress;
+
             fileTypeCB.IsEnabled = to;
             doneBtn.IsEnabled = to;
             copyBtn.IsEnabled = to;
             copiedFeedback.Content = "";
             inputFileFeedback.Content = "";
-
-            if (to) {
-                copiedFeedback.Visibility = Visibility.Hidden;
-                inputFileFeedback.Visibility = Visibility.Hidden;
-                loadingIndicator.Visibility = Visibility.Hidden;
+            if (operationInProgress)
+            {
+                showLoading();
             }
             else
             {
-                copiedFeedback.Visibility = Visibility.Visible;
-                inputFileFeedback.Visibility = Visibility.Visible;
-                loadingIndicator.Visibility = Visibility.Visible;
+                hideLoading();
             }
-        } 
+        }
+        private int showLoading() {
+            
+            copiedFeedback.Visibility = Visibility.Visible;
+            inputFileFeedback.Visibility = Visibility.Visible;
+            loadingIndicator.Visibility = Visibility.Visible;
+            return 0;
+        }
+        private int hideLoading()
+        {
+            copiedFeedback.Visibility = Visibility.Hidden;
+            inputFileFeedback.Visibility = Visibility.Hidden;
+            loadingIndicator.Visibility = Visibility.Hidden;
+            return 0;
+        }
 
         private void CustomFolderNameTB_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -213,104 +257,144 @@ namespace LAVtechQuickRecover
         }
 
 
+        private Color nextColor() {
+
+
+            return Color.FromRgb(255,254,212);
+        } 
 
         //LOGIC & EXECUTION EVENTS.
-        private void CopyFilesRecursively(string sourceDirectory, string destinationDirectory, IEnumerable<string> extensions)
+        private async Task CopyFilesRecursively(string sourceDirectory, string destinationDirectory, IEnumerable<string> extensions)
         {
             if (preserveFileStructure)
             {
                 Directory.CreateDirectory(destinationDirectory);
 
-                foreach (string file in Directory.EnumerateFiles(sourceDirectory))
+                await Task.Run(() =>
                 {
-                    SolidColorBrush myBrush = new SolidColorBrush(Colors.Red);
-                    loadingCircle.Stroke = myBrush;
-                    string extension = Path.GetExtension(file);
-                    inputFileFeedback.Content = $"{file}";
-                    if (extensions.Contains(extension))
-                    {
-                        string fileName = Path.GetFileName(file);
-                        string destinationFile = Path.Combine(destinationDirectory, fileName);
-
-                        try
-                        {
-                            File.Copy(file, destinationFile, true);
-                            copiedFeedback.Content = $"{fileName}"; //filename (adds directory)
-                        }
-                        catch (IOException ex)
-                        {
-                            // Handle file copying error
-                            LogError($"Failed to copy file: {fileName}\n\nError: {ex.Message}");
-                        }
-                    }
-                }
-
-                foreach (string subdirectory in Directory.EnumerateDirectories(sourceDirectory))
-                {
-                    // Skip the destination directory
-                    if (subdirectory.Equals(destinationDirectory, StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    // Prompt the user for permission to access protected directories
-                    if (!HasAccessToDirectory(subdirectory))
-                    {
-                        LogError($"Skipped accessing the protected directory: {subdirectory}");
-                        continue;
-                    }
-
-                    string directoryName = Path.GetFileName(subdirectory);
-                    string newDestinationDirectory = Path.Combine(destinationDirectory, directoryName);
-
-                    //CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions);
                     try
                     {
-                        CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions);
+                        foreach (string file in Directory.EnumerateFiles(sourceDirectory))
+                        {
+                            //SolidColorBrush myBrush = new SolidColorBrush(nextColor());
+                            //loadingCircle.Stroke = myBrush;
+                            string extension = Path.GetExtension(file);
+                            //inputFileFeedback.Content = $"{file}";
+                            if (extensions.Contains(extension))
+                            {
+                                string fileName = Path.GetFileName(file);
+                                string destinationFile = Path.Combine(destinationDirectory, fileName);
+
+                                try
+                                {
+                                    File.Copy(file, destinationFile, true);
+                                    //copiedFeedback.Content = $"{fileName}"; //filename (adds directory)
+                                }
+                                catch (IOException ex)
+                                {
+                                    // Handle file copying error
+                                    LogError($"Failed to copy file: {fileName}\n\nError: {ex.Message}");
+                                }
+                            }
+                        }
                     }
-                    catch (UnauthorizedAccessException e) { continue; }
-                }
+                    catch (Exception ex) {
+                        return;
+                    }
+
+                    foreach (string subdirectory in Directory.EnumerateDirectories(sourceDirectory))
+                    {
+                        // Skip the destination directory
+                        if (subdirectory.Equals(destinationDirectory, StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        // Prompt the user for permission to access protected directories
+                        if (!HasAccessToDirectory(subdirectory))
+                        {
+                            LogError($"Skipped accessing the protected directory: {subdirectory}");
+                            continue;
+                        }
+
+                        string directoryName = Path.GetFileName(subdirectory);
+                        string newDestinationDirectory = Path.Combine(destinationDirectory, directoryName);
+
+                        //CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions);
+                        try
+                        {
+                            CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions);
+                        }
+                        catch (UnauthorizedAccessException e) { continue; }
+                    }
+                }).ContinueWith(task =>
+                {
+                    if (task.Exception != null)
+                    {
+                        // Handle any exceptions occurred in the task
+                        foreach (var ex in task.Exception.InnerExceptions)
+                        {
+                            LogError($"An exception occurred: {ex.Message}");
+                        }
+                    }
+                }, TaskContinuationOptions.OnlyOnFaulted); ;
             }
             else
             {
                 Directory.CreateDirectory(destinationDirectory);
-
-                foreach (string file in Directory.EnumerateFiles(sourceDirectory))
+                await Task.Run(() =>
                 {
-                    string extension = Path.GetExtension(file);
-                    inputFileFeedback.Content = $"{file}";
-                    if (extensions.Contains(extension))
-                    {
-                        string fileName = Path.GetFileName(file);
-                        string destinationFile = Path.Combine(destinationDirectory, fileName);
-
-                        try
-                        {
-                            File.Copy(file, destinationFile, true);
-                            copiedFeedback.Content = $"{file}";//file doesn't show the folder directory
-                        }
-                        catch (IOException ex)
-                        {
-                            // Handle file copying error
-                            LogError($"Failed to copy file: {file}\n\nError: {ex.Message}");
-                        }
-                    }
-                }
-
-                //if (!preserveFileStructure)
-                //    return;
-
-                foreach (string subdirectory in Directory.EnumerateDirectories(sourceDirectory))
-                {
-                    // Skip the destination directory
-                    if (subdirectory.Equals(destinationDirectory, StringComparison.OrdinalIgnoreCase))
-                        continue;
                     try
                     {
-                        CopyFilesRecursively(subdirectory, destinationDirectory, extensions);
+                        foreach (string file in Directory.EnumerateFiles(sourceDirectory))
+                        {
+                            string extension = Path.GetExtension(file);
+                            //inputFileFeedback.Content = $"{file}";   //UI ITEMS ON MAIN UI THREAD!S
+                            if (extensions.Contains(extension))
+                            {
+                                string fileName = Path.GetFileName(file);
+                                string destinationFile = Path.Combine(destinationDirectory, fileName);
+
+                                try
+                                {
+                                    File.Copy(file, destinationFile, true);
+                                    //copiedFeedback.Content = $"{file}";//file doesn't show the folder directory
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Handle file copying error
+                                    LogError($"Failed to copy file: {file}\n\nError: {ex.Message}");
+                                }
+                            }
+                        }
                     }
-                    catch (UnauthorizedAccessException e) { continue; }
+                    catch (Exception ex) {
+                        return;
+                    }
+                    //if (!preserveFileStructure)
+                    //    return;
 
-                }
+                    foreach (string subdirectory in Directory.EnumerateDirectories(sourceDirectory))
+                    {
+                        // Skip the destination directory
+                        if (subdirectory.Equals(destinationDirectory, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        try
+                        {
+                            CopyFilesRecursively(subdirectory, destinationDirectory, extensions);
+                        }
+                        catch (Exception e) { continue; }
 
+                    }
+                }).ContinueWith(task =>
+                {
+                    if (task.Exception != null)
+                    {
+                        // Handle any exceptions occurred in the task
+                        foreach (var ex in task.Exception.InnerExceptions)
+                        {
+                            LogError($"An exception occurred: {ex.Message}");
+                        }
+                    }
+                }, TaskContinuationOptions.OnlyOnFaulted); ;
 
             }
         }
@@ -333,21 +417,33 @@ namespace LAVtechQuickRecover
 
         private void LogError(string errorMessage)
         {
-            // Implement your error logging mechanism here
-            // You can log the error to a file, database, or any other desired destination
-            // Example: log to a file
-            Console.WriteLine($"{errorMessage}\n");
-
-
-            ///???///?SAVE THIS FOR THE ACTUAL OUTPUT ERROR LOG IN DESTINATION FOLDER
-            //string logFilePath = "error.log";
-            //File.AppendAllText(logFilePath, $"{errorMessage}\n");
+                string logFilePath = Path.Combine(destinationPath, "error.log");
+                File.AppendAllText(logFilePath, $"{errorMessage}\n");
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             preserveFileStructure = (bool)preserveFileStructureCB.IsChecked;
         }
+
+
+        ///////////////////////ACTIVATING BELOW ALLOWS WINDOW TO BE REPOSITIONED> IT ALSO MAKES THE UI DISABLED
+        //protected override void OnSourceInitialized(EventArgs e)
+        //{
+        //    HwndSource hwndSource = (HwndSource)HwndSource.FromVisual(this);
+        //    hwndSource.AddHook(WndProcHook);
+        //    base.OnSourceInitialized(e);
+        //}
+
+        //private static IntPtr WndProcHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handeled)
+        //{
+        //    if (msg == 0x0084) // WM_NCHITTEST
+        //    {
+        //        handeled = true;
+        //        return (IntPtr)2; // HTCAPTION
+        //    }
+        //    return IntPtr.Zero;
+        //}
     }
 }
 
