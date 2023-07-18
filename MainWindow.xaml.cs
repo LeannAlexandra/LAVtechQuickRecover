@@ -77,7 +77,8 @@ namespace LAVtechQuickRecover
         private IntPtr hookHandle;
         private LowLevelMouseProc hookProc;
 
-
+ //////////////////////////////////////////////////////////////////////////////////////////////////////// BIG CREDIT TO THE ARTIST OF THE LOGO /////////////////////////////////////////////
+        private string aboutInformationIcon = "WilliamsCreativity https://pixabay.com/users/williamscreativity-17210051/ : Light blue circle with folder containing file - by Williams Creativity Available at https://pixabay.com/vectors/folder-icon-document-file-hosting-5502835/";
         public MainWindow()
         {
             InitializeComponent();
