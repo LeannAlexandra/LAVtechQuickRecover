@@ -5,9 +5,9 @@ A small UI for recovery tool to extract specific file types from a drive.
 Extract all pictures into one folder quickly and easily. 
 
 //FOUNDATIONAL IDEA: make this batch code run with UI
-`cd "F:\"
-mkdir allpictures
-for /R "F:\ADV REC" %%G in (*.png *.jpg *.jpeg *.gif) do copy "%%G" "F:\allpictures\"
+`cd "F:\";
+mkdir allpictures;
+for /R "F:\ADV REC" %%G in (*.png *.jpg *.jpeg *.gif) do copy "%%G" "F:\allpictures\";
 PAUSE`
 
 //EXTRA FEATURES
