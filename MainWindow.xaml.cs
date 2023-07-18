@@ -31,8 +31,10 @@ namespace LAVtechQuickRecover
 
 
 
-    //TODO: filetype selection dropdown (on change) event
-    //      in the Copy_click event apply the above logic
+    //TODO: DRIVE LETTER SELECTIONS TO UPDATE DRIVES ON CHANGE> EVENTS 
+    //TODO: ADD SOFTWARE(DEV) make a git-aware version of software developers. ;) 
+    //(add exception for .gitignore files, same as git) )
+
     public partial class MainWindow : Window
     {
         private const char DEFAULT_DRIVE_LETTER = 'E';
@@ -50,8 +52,7 @@ namespace LAVtechQuickRecover
         /// </summary>
         /// 
 
-        //TODO: make a git-aware version of software developers. ;) 
-        //(add exception for .gitignore files, same as git) )
+        
 
         string[] miscExtensions = { ".", ".blend"};
         private Thread processingThread;
@@ -59,6 +60,7 @@ namespace LAVtechQuickRecover
         private bool preserveFileStructure = false;
         private bool testing=true;
         private char driveLetter = 'E';
+        private char destinationDriveLetter = 'E';
         private bool operationInProgress = false;
         List<char> driveOptionsList = new List<char>();
         List<string> extensions = new List<string>();
@@ -138,7 +140,7 @@ namespace LAVtechQuickRecover
 
                 Console.WriteLine("IT's NO RUNNINGWE's JUST AN IDIOTS");
                 string sourcePath = driveLetter + ":\\";
-                string destinationPath = driveLetter + $":\\{destinationFolderName}\\";
+                string destinationPath = destinationDriveLetter + $":\\{destinationFolderName}\\";
 
                 string[] allExtensions = extensions.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();//ImageExtensions.Concat(DocumentExtensions);
             try
@@ -417,6 +419,7 @@ namespace LAVtechQuickRecover
 
         private void LogError(string errorMessage)
         {
+            string destinationPath = driveLetter+"\\"+destinationFolderName;
                 string logFilePath = Path.Combine(destinationPath, "error.log");
                 File.AppendAllText(logFilePath, $"{errorMessage}\n");
         }
