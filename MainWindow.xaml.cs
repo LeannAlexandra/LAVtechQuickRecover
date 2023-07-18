@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography;
 using System.Text;
@@ -18,6 +20,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Threading;
 using System.Xml.XPath;
 using static System.Net.Mime.MediaTypeNames;
 //using System.Windows.Shapes;
@@ -66,30 +69,34 @@ namespace LAVtechQuickRecover
         List<char> driveOptionsList = new List<char>();
         List<string> extensions = new List<string>();
 
+        //Window Dragging Variables
+        private const int DragStartDelayMilliseconds = 500; // Adjust the duration as needed
+        private bool isDragging = false;
+        private Point dragStartPosition;
+        private DispatcherTimer dragTimer;
+        private IntPtr hookHandle;
+        private LowLevelMouseProc hookProc;
+
+
         public MainWindow()
         {
             InitializeComponent();
-            //DO THE FOLLOWING ASYNC - each with a 'ready' flag. - activate buttons only when ready.
             LoadDrives();
             LoadDriveOptions();
             LoadFileOptions();
-            //toggleControls();
-            //showLoading();
             customFolderNameTB.Text = destinationFolderName;
-            //var task = Task.Run(async () => {
-                
-            //    for (; ; )
-            //    {
 
+            //Add the window dragging functionality
+            MouseLeftButtonDown += Window_MouseLeftButtonDown;
+            MouseLeftButtonUp += Window_MouseLeftButtonUp;
+            MouseMove += Window_MouseMove;
 
-            //        if (!operationInProgress) {
-            //            await Task.Delay(1000);
-            //            continue;
-            //        }
-            //        await Task.Delay(100);
-            //        Console.WriteLine("Hello World after .1 seconds");
-            //    }
-            //});
+            dragTimer = new DispatcherTimer();
+            dragTimer.Interval = TimeSpan.FromMilliseconds(DragStartDelayMilliseconds);
+            dragTimer.Tick += DragTimer_Tick;
+
+            Loaded += Window_Loaded;
+            Closing += Window_Closing;
         }
 
         //INITIALIZATION EVENTS
@@ -166,7 +173,6 @@ namespace LAVtechQuickRecover
         private void FileTypeCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             extensions.Clear();
-            //extensions.Add(".txt");
             int choice = fileTypeCB.SelectedIndex;
             switch (choice) { //I could've made an enum .. or finished this section before load shedding, I chose the latter
                 case 0: //0 Pictures 
@@ -258,13 +264,6 @@ namespace LAVtechQuickRecover
             destinationFolderName = customFolderNameTB.Text;
         }
 
-
-        private Color nextColor() {
-
-
-            return Color.FromRgb(255,254,212);
-        } 
-
         //LOGIC & EXECUTION EVENTS.
         private async Task CopyFilesRecursively(string sourceDirectory, string destinationDirectory, IEnumerable<string> extensions)
         {
@@ -278,10 +277,8 @@ namespace LAVtechQuickRecover
                     {
                         foreach (string file in Directory.EnumerateFiles(sourceDirectory))
                         {
-                            //SolidColorBrush myBrush = new SolidColorBrush(nextColor());
-                            //loadingCircle.Stroke = myBrush;
+
                             string extension = Path.GetExtension(file);
-                            //inputFileFeedback.Content = $"{file}";
                             if (extensions.Contains(extension))
                             {
                                 string fileName = Path.GetFileName(file);
@@ -290,11 +287,9 @@ namespace LAVtechQuickRecover
                                 try
                                 {
                                     File.Copy(file, destinationFile, true);
-                                    //copiedFeedback.Content = $"{fileName}"; //filename (adds directory)
                                 }
                                 catch (IOException ex)
                                 {
-                                    // Handle file copying error
                                     LogError($"Failed to copy file: {fileName}\n\nError: {ex.Message}");
                                 }
                             }
@@ -375,9 +370,7 @@ namespace LAVtechQuickRecover
                         LogError($"ERROR WITH MESSAGE {ex}");
                         return;
                     }
-                    //if (!preserveFileStructure)
-                    //    return;
-
+            
                     foreach (string subdirectory in Directory.EnumerateDirectories(sourceDirectory))
                     {
                         // Skip the destination directory
@@ -426,12 +419,10 @@ namespace LAVtechQuickRecover
 
         private void LogError(string errorMessage)
         {
-            string destinationPath = destinationDriveLetter + "\\"+destinationFolderName;
-            string logFilePath = Path.Combine(destinationPath, "error.log");
+            //string executableDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            //string logFilePath = Path.Combine(executableDirectory, "error.log");
             //File.AppendAllText(logFilePath, $"{errorMessage}\n");
-            //ie don't generate log. 
         }
-
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             preserveFileStructure = (bool)preserveFileStructureCB.IsChecked; //ignore warning (bool)null = false   ;)
@@ -449,24 +440,111 @@ namespace LAVtechQuickRecover
             destinationDriveLetter= driveOptionsList[destinationFolderCB.SelectedIndex];    //first character because ... drive letter.
         }
 
+        ///???????????????/ WINDOW DRAGGING LOGIC
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
+            hookProc = MouseHookCallback;
+            hookHandle = SetMouseHook(hookProc, source.Handle);
+        }
 
-        ///////////////////////ACTIVATING BELOW ALLOWS WINDOW TO BE REPOSITIONED> IT ALSO MAKES THE UI DISABLED
-        //protected override void OnSourceInitialized(EventArgs e)
-        //{
-        //    HwndSource hwndSource = (HwndSource)HwndSource.FromVisual(this);
-        //    hwndSource.AddHook(WndProcHook);
-        //    base.OnSourceInitialized(e);
-        //}
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            UnhookMouseHook();
+        }
 
-        //private static IntPtr WndProcHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handeled)
-        //{
-        //    if (msg == 0x0084) // WM_NCHITTEST
-        //    {
-        //        handeled = true;
-        //        return (IntPtr)2; // HTCAPTION
-        //    }
-        //    return IntPtr.Zero;
-        //}
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            dragStartPosition = e.GetPosition(this);
+            CaptureMouse();
+            dragTimer.Start();
+        }
+
+        private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            dragTimer.Stop();
+            isDragging = false;
+            ReleaseMouseCapture();
+        }
+
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                Point currentPosition = e.GetPosition(this);
+                Vector dragDelta = currentPosition - dragStartPosition;
+                Left += dragDelta.X;
+                Top += dragDelta.Y;
+            }
+        }
+
+        private void Window_LostMouseCapture(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                dragTimer.Stop();
+                isDragging = false;
+            }
+        }
+
+        private void DragTimer_Tick(object sender, EventArgs e)
+        {
+            dragTimer.Stop();
+            isDragging = true;
+        }
+
+        private IntPtr SetMouseHook(LowLevelMouseProc proc, IntPtr handle)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule)
+            {
+                return SetWindowsHookEx(WH_MOUSE_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
+        private void UnhookMouseHook()
+        {
+            if (hookHandle != IntPtr.Zero)
+            {
+                UnhookWindowsHookEx(hookHandle);
+                hookHandle = IntPtr.Zero;
+            }
+        }
+
+        private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && wParam == (IntPtr)WM_LBUTTONUP)
+            {
+                if (isDragging)
+                {
+                    isDragging = false;
+                    ReleaseMouseCapture();
+                }
+            }
+
+            return CallNextHookEx(hookHandle, nCode, wParam, lParam);
+        }
+
+        private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        private const int WH_MOUSE_LL = 14;
+        private const int WM_LBUTTONUP = 0x0202;
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+
+
     }
 }
 
