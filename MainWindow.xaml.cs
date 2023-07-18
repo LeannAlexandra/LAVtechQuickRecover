@@ -31,7 +31,8 @@ namespace LAVtechQuickRecover
 
 
 
-    //TODO: DRIVE LETTER SELECTIONS TO UPDATE DRIVES ON CHANGE> EVENTS 
+    //TODO: DRIVE LETTER SELECTIONS TO UPDATE DRIVES ON CHANGE> EVENTS  
+        //CURRENTLY HARDCODED TO ONLY E DRIVE, EVEN THOUGH DRIVE SELECTORS ARE PRESENT AND WORK> 
     //TODO: ADD SOFTWARE(DEV) make a git-aware version of software developers. ;) 
     //(add exception for .gitignore files, same as git) )
 
@@ -44,7 +45,7 @@ namespace LAVtechQuickRecover
         string[] vectorGraphicsExtentions = { ".EPS", ".AI", ".psd",".indd", ".raw", ".svg", ".cdr" };
         string[] audioExtensions = {".AIF", ".IFF", ".M3U", ".M4A", ".MID", ".MP3", ".MPA", ".WAV", ".WMA" };
         string[] videoExtensions = { ".3G2", ".3GP", ".ASF", ".AVI", ".FLV", ".M4V", ".MOV", ".MP4", ".MPG", ".RM", ".SRT", ".SWF", ".VOB", ".WMV" };
-        string[] documentExtensions = { ".PDF", ".doc",".xlsx", "docx", ".xls", ".gif",".html",".htm", ".ODT", ".ODS", ".PPT", ".PPTX", ".TXT" };
+        string[] documentExtensions = { ".PDF", ".doc",".xlsx", "docx", ".xls",".html",".htm", ".ODT", ".ODS", ".PPT", ".PPTX", ".TXT" };
         string[] programmingExtentions = {".sln",".js", ".html", ".css", ".json", ".c", ".cpp", "cs", ".py", ".pyc", ".pyw", ".pyx", ".class" /*, "", "", "", "", "", "", ""*/ }; 
         /// <summary>
         /// Program to quickly extract selected file types from a drive to another drive. Specifically useful when upgrading your computer and just want to keep photos, documents or videos.
@@ -54,11 +55,11 @@ namespace LAVtechQuickRecover
 
         
 
-        string[] miscExtensions = { ".", ".blend"};
-        private Thread processingThread;
+        //string[] miscExtensions = { ".", ".blend"};
+        //private Thread processingThread;
 
         private bool preserveFileStructure = false;
-        private bool testing=true;
+        private bool testing=false;
         private char driveLetter = 'E';
         private char destinationDriveLetter = 'E';
         private bool operationInProgress = false;
@@ -196,16 +197,15 @@ namespace LAVtechQuickRecover
                     //do everything  ;) that's why the last option is always all.
                     break;
             }
+
+
+
             if (testing)
             {
                 extensions.Clear();
                 extensions.Add(".txt");
 
             }
-            //if (testing)
-            //    Console.WriteLine($"the current slection is: {choice}");
-
-
         }
         private void LoadDrives()
         {
@@ -272,7 +272,7 @@ namespace LAVtechQuickRecover
             {
                 Directory.CreateDirectory(destinationDirectory);
 
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     try
                     {
@@ -301,6 +301,7 @@ namespace LAVtechQuickRecover
                         }
                     }
                     catch (Exception ex) {
+                        LogError($"ERROR WITH MESSAGE {ex}");
                         return;
                     }
 
@@ -323,9 +324,11 @@ namespace LAVtechQuickRecover
                         //CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions);
                         try
                         {
-                            CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions);
+                            await Task.Run(() => { Task recursionTask = CopyFilesRecursively(subdirectory, newDestinationDirectory, extensions); });
                         }
-                        catch (UnauthorizedAccessException e) { continue; }
+                        catch (UnauthorizedAccessException e) {
+                            LogError($"ERROR WITH MESSAGE {e}");
+                            continue; }
                     }
                 }).ContinueWith(task =>
                 {
@@ -342,7 +345,7 @@ namespace LAVtechQuickRecover
             else
             {
                 Directory.CreateDirectory(destinationDirectory);
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     try
                     {
@@ -369,6 +372,7 @@ namespace LAVtechQuickRecover
                         }
                     }
                     catch (Exception ex) {
+                        LogError($"ERROR WITH MESSAGE {ex}");
                         return;
                     }
                     //if (!preserveFileStructure)
@@ -381,9 +385,12 @@ namespace LAVtechQuickRecover
                             continue;
                         try
                         {
-                            CopyFilesRecursively(subdirectory, destinationDirectory, extensions);
+                            await Task.Run(() => { Task recursionTask = CopyFilesRecursively(subdirectory, destinationDirectory, extensions); });
+                            
                         }
-                        catch (Exception e) { continue; }
+                        catch (Exception e) {
+                            LogError($"An exception occurred: {e.Message}");
+                            continue; }
 
                     }
                 }).ContinueWith(task =>
@@ -419,14 +426,27 @@ namespace LAVtechQuickRecover
 
         private void LogError(string errorMessage)
         {
-            string destinationPath = driveLetter+"\\"+destinationFolderName;
-                string logFilePath = Path.Combine(destinationPath, "error.log");
-                File.AppendAllText(logFilePath, $"{errorMessage}\n");
+            string destinationPath = destinationDriveLetter + "\\"+destinationFolderName;
+            string logFilePath = Path.Combine(destinationPath, "error.log");
+            //File.AppendAllText(logFilePath, $"{errorMessage}\n");
+            //ie don't generate log. 
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            preserveFileStructure = (bool)preserveFileStructureCB.IsChecked;
+            preserveFileStructure = (bool)preserveFileStructureCB.IsChecked; //ignore warning (bool)null = false   ;)
+           
+        }
+
+        private void SourceFileCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            driveLetter = driveOptionsList[sourceFileCB.SelectedIndex]; //the first character // because we're working with drives.
+        }
+
+        private void DestinationFolderCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            destinationDriveLetter= driveOptionsList[destinationFolderCB.SelectedIndex];    //first character because ... drive letter.
         }
 
 
