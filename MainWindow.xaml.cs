@@ -98,8 +98,16 @@ namespace LAVtechQuickRecover
 
             Loaded += Window_Loaded;
             Closing += Window_Closing;
+
+            AboutLink.PreviewMouseLeftButtonDown += ShowAbout;
         }
 
+        private void ShowAbout(Object sender, EventArgs e) {
+            Window aboutWindow = new about();
+            aboutWindow.Show();
+
+
+        }
         //INITIALIZATION EVENTS
         private void LoadFileOptions() 
         {
