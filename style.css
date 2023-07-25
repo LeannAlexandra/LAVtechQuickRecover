@@ -1,0 +1,9 @@
+ul{
+    list-style: none    ;
+}
+.description-elaboration{
+    color: grey;
+}
+.description-elaboration:hover{
+    color: darkturquoise;
+}
