@@ -56,7 +56,6 @@ only limited programming extractions. (not git-efficient yet)
             <ul><li>It skips the destination folder to prevent some nasty recursion ;)</li></ul>
         </li>
         <li>Currenlty does not overwrite same-named files.</li>
-
         <li>You can preserve the folder structure.</li>
         <li>Open to Suggestions for features such as these to look forward to:
             <ul>
@@ -65,7 +64,6 @@ only limited programming extractions. (not git-efficient yet)
             </ul>
         </li>
     </ul>
-
     </div>
     <div class="help">
         <h2>How To:</h2>
@@ -81,7 +79,6 @@ only limited programming extractions. (not git-efficient yet)
             </li>
             <li>does not automatically understand GIT and programming<span class="description-elaboration"> - I don't anticipte too much use - apart from true offline application thereoff</span></li>
             <li>Input is currently limited to a whole drive - small fix if needed</li>
-            <li></li>
         </ol>
     </div>
     <div class="special-thanks">
@@ -96,7 +93,6 @@ only limited programming extractions. (not git-efficient yet)
         <p>If you have any suggestions or questions, please feel free to reach out via  <a href="mailto:leannalexandraviolet@gmail.com">email</a></p>
     </div>
     <div class="devlog">
-
     </div>
     <div class="about-author">
         <h2>About Me</h2>
