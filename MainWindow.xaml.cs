@@ -14,7 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-//using System.Windows.Forms; //FOR THE MESSAGE BOX AND DIALOG RESUTL
+//using System.Windows.Forms.dll; //FOR THE folder browser
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -78,7 +78,6 @@ namespace LAVtechQuickRecover
         private LowLevelMouseProc hookProc;
 
  //////////////////////////////////////////////////////////////////////////////////////////////////////// BIG CREDIT TO THE ARTIST OF THE LOGO /////////////////////////////////////////////
-        private string aboutInformationIcon = "WilliamsCreativity https://pixabay.com/users/williamscreativity-17210051/ : Light blue circle with folder containing file - by Williams Creativity Available at https://pixabay.com/vectors/folder-icon-document-file-hosting-5502835/";
         public MainWindow()
         {
             InitializeComponent();
@@ -100,6 +99,8 @@ namespace LAVtechQuickRecover
             Closing += Window_Closing;
 
             AboutLink.PreviewMouseLeftButtonDown += ShowAbout;
+
+            PopulateInputTreeView($"{driveLetter}:"); //will either be drive E:/ by now or the first other drive.
         }
 
         private void ShowAbout(Object sender, EventArgs e) {
@@ -243,7 +244,7 @@ namespace LAVtechQuickRecover
             doneBtn.IsEnabled = to;
             copyBtn.IsEnabled = to;
             copiedFeedback.Content = "";
-            inputFileFeedback.Content = "";
+            //inputFileFeedback.Content = "";
             if (operationInProgress)
             {
                 showLoading();
@@ -256,14 +257,14 @@ namespace LAVtechQuickRecover
         private int showLoading() {
             
             copiedFeedback.Visibility = Visibility.Visible;
-            inputFileFeedback.Visibility = Visibility.Visible;
+            //inputFileFeedback.Visibility = Visibility.Visible;
             loadingIndicator.Visibility = Visibility.Visible;
             return 0;
         }
         private int hideLoading()
         {
             copiedFeedback.Visibility = Visibility.Hidden;
-            inputFileFeedback.Visibility = Visibility.Hidden;
+            //inputFileFeedback.Visibility = Visibility.Hidden;
             loadingIndicator.Visibility = Visibility.Hidden;
             return 0;
         }
@@ -551,6 +552,65 @@ namespace LAVtechQuickRecover
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        ///////////// CODE FOR USING FOLDERBROWSERDIALOG //// WIN FORMS -> REPLACE WITH TREEVIEW*
+        private void if_selector_button_Click(object sender, RoutedEventArgs e)
+        {
+        ///todo: implement
+        }
+        //    string txtPath = $"{driveLetter}";
+        //    System.Windows.Forms.FolderBrowserDialog openFileDlg = new System.Windows.Forms.FolderBrowserDialog();
+        //    var result = openFileDlg.ShowDialog();
+        //    if (result.ToString() != string.Empty)
+        //    {
+        //        txtPath.Text = openFileDlg.SelectedPath;
+        //    }
+        //    root = txtPath.Text;
+        //}
+
+        private void PopulateInputTreeView(string rootDirectory)
+        {
+            Console.WriteLine($"Currently your root directory is: {rootDirectory}");
+            inputFolderTreeView.Items.Clear();
+            var rootItem = new TreeViewItem
+            {
+                Header = rootDirectory,
+                Tag = rootDirectory
+            };
+            inputFolderTreeView.Items.Add(rootItem);
+            PopulateInputTreeViewRecursively(rootItem, rootDirectory);
+        }
+
+        private void PopulateInputTreeViewRecursively(TreeViewItem parentItem, string parentDirectory)
+        {
+            try
+            {
+                foreach (string directory in Directory.GetDirectories(parentDirectory))
+                {
+                    try
+                    {
+                        var item = new TreeViewItem
+                        {
+                            Header = Path.GetFileName(directory),
+                            Tag = directory
+                        };
+                        parentItem.Items.Add(item);
+                        PopulateInputTreeViewRecursively(item, directory);
+                    } catch {
+                        continue; // ;) expert level warning and error supression ;)
+                    }
+                   
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Handle unauthorized access if needed
+            } catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message); // will give the file not found error
+            }
+        }
+
 
 
 

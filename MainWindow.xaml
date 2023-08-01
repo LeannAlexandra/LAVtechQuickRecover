@@ -22,18 +22,17 @@
             <Label Content="Destination Directory:" Margin="35,186,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="153"/>
             <ComboBox x:Name="fileTypeCB" Margin="0,120,35,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153" SelectionChanged="FileTypeCB_SelectionChanged"/>
             <Label Content="File Types" Margin="0,89,35,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153"/>
-            <Expander Height="22" Header="Advanced Options" Margin="35,155,35,0" VerticalAlignment="Top" IsEnabled="False" Visibility="Hidden">
-                <TreeView x:Name="inputFileTreeView"/>
+            <Expander x:Name="Input_Expander" Height="180" Header="Advanced Input Options" Margin="35,155,35,0" VerticalAlignment="Top" Panel.ZIndex="4" Visibility="Hidden">
+                <TreeView x:Name="inputFolderTreeView"/>
             </Expander>
             <Button x:Name="copyBtn" Content="Copy Files" Margin="0,275,35,0" Padding="20,10" BorderThickness="2" BorderBrush="DarkGreen" VerticalAlignment="Top" Click="Copy_Click" HorizontalAlignment="Right" Width="153"/>
             <Button x:Name="doneBtn" Content="Done" Margin="35,275,0,0" Padding="20,10" BorderThickness="2" BorderBrush="DarkRed" VerticalContentAlignment="Center" VerticalAlignment="Top" Click="Done_Click" HorizontalAlignment="Left" Width="153"/>
             <TextBox x:Name="customFolderNameTB" Margin="226,217,35,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Padding="2" TextChanged="CustomFolderNameTB_TextChanged"/>
             <Expander Height="022" Header="Advanced Options" Margin="35,244,35,0" VerticalAlignment="Top" IsEnabled="False" Visibility="Hidden">
-                <TreeView x:Name="outputFileTreeView"/>
+                <TreeView x:Name="outputFolderTreeView"/>
             </Expander>
             <CheckBox x:Name="preserveFileStructureCB" Content="Preserve Folder Structure" HorizontalAlignment="Left" Margin="226,191,0,0" VerticalAlignment="Top" RenderTransformOrigin="-4.875,0.365" Width="153" Checked="CheckBox_Checked"/>
             <Label Content="LAVTech QuickPick" Margin="104,13,36,0" VerticalAlignment="Top" Opacity="0.995" FontSize="32"/>
-            <Label x:Name="inputFileFeedback" Content="" HorizontalAlignment="Center" Margin="0,153,0,0" VerticalAlignment="Top" Width="344"/>
             <Label x:Name="copiedFeedback" Content="" HorizontalAlignment="Center" Margin="0,242,0,0" VerticalAlignment="Top" Width="344"/>
             <StatusBar x:Name="loadingIndicator" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="50,0,50,0" Background="Transparent" Visibility="Hidden">
                 <Ellipse x:Name="loadingCircle" Height="200" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -62,6 +61,7 @@
                     </Style>
                 </Label.Style>
             </Label>
+            <Button x:Name="if_selector_button" Content="" HorizontalAlignment="Center" Margin="0,117,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.012,-0.097" Width="28" Height="28" Click="if_selector_button_Click" Visibility="Hidden"/>
 
         </Grid>
     </Border>
