@@ -14,7 +14,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-//using System.Windows.Forms.dll; //FOR THE folder browser
+using System.Windows.Forms;
+//using System.Windows.Forms.dll; //FOR THE folder browser I REFUSE TO USE IT ... 
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -23,21 +24,9 @@ using System.Windows.Navigation;
 using System.Windows.Threading;
 using System.Xml.XPath;
 using static System.Net.Mime.MediaTypeNames;
-//using System.Windows.Shapes;
 
 namespace LAVtechQuickRecover
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// 
-
-
-
-    //TODO: DRIVE LETTER SELECTIONS TO UPDATE DRIVES ON CHANGE> EVENTS  
-        //CURRENTLY HARDCODED TO ONLY E DRIVE, EVEN THOUGH DRIVE SELECTORS ARE PRESENT AND WORK> 
-    //TODO: ADD SOFTWARE(DEV) make a git-aware version of software developers. ;) 
-    //(add exception for .gitignore files, same as git) )
 
     public partial class MainWindow : Window
     {
@@ -77,7 +66,6 @@ namespace LAVtechQuickRecover
         private IntPtr hookHandle;
         private LowLevelMouseProc hookProc;
 
- //////////////////////////////////////////////////////////////////////////////////////////////////////// BIG CREDIT TO THE ARTIST OF THE LOGO /////////////////////////////////////////////
         public MainWindow()
         {
             InitializeComponent();
@@ -100,7 +88,8 @@ namespace LAVtechQuickRecover
 
             AboutLink.PreviewMouseLeftButtonDown += ShowAbout;
 
-            PopulateInputTreeView($"{driveLetter}:"); //will either be drive E:/ by now or the first other drive.
+            // moved to seperate view, utilized only when explicitly requested
+            //PopulateInputTreeView($"{driveLetter}:"); //will either be drive E:/ by now or the first other drive.
         }
 
         private void ShowAbout(Object sender, EventArgs e) {
@@ -145,9 +134,6 @@ namespace LAVtechQuickRecover
                 destinationFolderCB.SelectedIndex = 0;
         }
 
-
-
-
         // EVENT LISTENERS
         private async void Copy_Click(object sender, RoutedEventArgs e)
         {
@@ -155,21 +141,15 @@ namespace LAVtechQuickRecover
                return;
 
             toggleControls(operationInProgress); //set them not enabled -> Show Loading
-
-                Console.WriteLine("IT's NO RUNNINGWE's JUST AN IDIOTS");
-                string sourcePath = driveLetter + ":\\";
-                string destinationPath = destinationDriveLetter + $":\\{destinationFolderName}\\";
-
-                string[] allExtensions = extensions.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();//ImageExtensions.Concat(DocumentExtensions);
+            string sourcePath = driveLetter + ":\\";
+            string destinationPath = destinationDriveLetter + $":\\{destinationFolderName}\\";
+            string[] allExtensions = extensions.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();//ImageExtensions.Concat(DocumentExtensions);
             try
             {
-
                 await CopyFilesRecursively(sourcePath, destinationPath, allExtensions);// doesnt want to happy async ... yet
-                Console.WriteLine("IT's DONE COPYING, WE's JUST AN IDIOTS");
             }
             catch (Exception ex) { LogError($"An error occurred: {ex.Message}"); }
             finally {
-
                 toggleControls(operationInProgress);
             }
 }
@@ -244,7 +224,6 @@ namespace LAVtechQuickRecover
             doneBtn.IsEnabled = to;
             copyBtn.IsEnabled = to;
             copiedFeedback.Content = "";
-            //inputFileFeedback.Content = "";
             if (operationInProgress)
             {
                 showLoading();
@@ -257,14 +236,12 @@ namespace LAVtechQuickRecover
         private int showLoading() {
             
             copiedFeedback.Visibility = Visibility.Visible;
-            //inputFileFeedback.Visibility = Visibility.Visible;
             loadingIndicator.Visibility = Visibility.Visible;
             return 0;
         }
         private int hideLoading()
         {
             copiedFeedback.Visibility = Visibility.Hidden;
-            //inputFileFeedback.Visibility = Visibility.Hidden;
             loadingIndicator.Visibility = Visibility.Hidden;
             return 0;
         }
@@ -553,11 +530,32 @@ namespace LAVtechQuickRecover
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
-        ///////////// CODE FOR USING FOLDERBROWSERDIALOG //// WIN FORMS -> REPLACE WITH TREEVIEW*
-        private void if_selector_button_Click(object sender, RoutedEventArgs e)
+        private void Adv_Input_Button_Click(object sender, RoutedEventArgs e)
         {
-        ///todo: implement
+            ChooseFolderWindow chooseInputFolderWindow = new ChooseFolderWindow();
+            if (chooseInputFolderWindow.ShowDialog() == true)
+            {
+                // The user selected a folder, and the selected path is in chooseInputFolderWindow.SelectedFolder
+                string selectedInputFolder = chooseInputFolderWindow.SelectedFolder;
+                Console.WriteLine(selectedInputFolder);
+                // Use the selectedInputFolder as needed in your main window logic
+            }
+            //Window chooseFolderWindow = new ChooseFolderWindow("Choose Input Folder");
+            //chooseFolderWindow.Show();
         }
+
+        private void Adv_Dest_Button_Click(object sender, RoutedEventArgs e)
+        {
+            Window chooseFolderWindow = new ChooseFolderWindow("Choose Destination Folder");
+            chooseFolderWindow.Show();
+        }
+
+
+        ///////////// CODE FOR USING FOLDERBROWSERDIALOG //// WIN FORMS -> REPLACE WITH TREEVIEW*
+        //private void if_selector_button_Click(object sender, RoutedEventArgs e)
+        //{
+        /////todo: implement
+        //}
         //    string txtPath = $"{driveLetter}";
         //    System.Windows.Forms.FolderBrowserDialog openFileDlg = new System.Windows.Forms.FolderBrowserDialog();
         //    var result = openFileDlg.ShowDialog();
@@ -568,6 +566,10 @@ namespace LAVtechQuickRecover
         //    root = txtPath.Text;
         //}
 
+
+
+        //THIS CODE WORKS -> MOVE TO SEPERATE WINDOW.
+        /*
         private void PopulateInputTreeView(string rootDirectory)
         {
             Console.WriteLine($"Currently your root directory is: {rootDirectory}");
@@ -612,7 +614,7 @@ namespace LAVtechQuickRecover
         }
 
 
-
+        */
 
     }
 }

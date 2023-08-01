@@ -7,8 +7,12 @@
         mc:Ignorable="d"
         Title="ChooseFolderWindow" Height="450" Width="450" WindowStyle="ToolWindow">
     <Grid>
-        <TreeView Margin="0,0,0,50"/>
-        <Button Content="Accept" HorizontalAlignment="Left" Margin="301,389,0,0" VerticalAlignment="Top" Width="139" RenderTransformOrigin="-0.164,0.336" Height="35"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="11*"/>
+
+        </Grid.ColumnDefinitions>
+        <TreeView x:Name="SelectFolderTreeView" Margin="30,30,30,77"/>
+        <Button Content="Accept" HorizontalAlignment="Left" Margin="281,362,0,0" VerticalAlignment="Top" Width="139" RenderTransformOrigin="-0.164,0.336" Height="35" Click="Button_Click"/>
 
     </Grid>
 </Window>

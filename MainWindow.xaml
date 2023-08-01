@@ -16,9 +16,9 @@
                 <ColumnDefinition Width="780*"/>
 
             </Grid.ColumnDefinitions>
-            <ComboBox x:Name="sourceFileCB" HorizontalAlignment="Left" Margin="35,120,0,0" VerticalAlignment="Top" Width="153" SelectionChanged="SourceFileCB_SelectionChanged"/>
+            <ComboBox x:Name="sourceFileCB" HorizontalAlignment="Left" Margin="35,120,0,0" VerticalAlignment="Top" Width="134" SelectionChanged="SourceFileCB_SelectionChanged"/>
             <Label Content="Input Directory:" HorizontalAlignment="Left" Margin="35,89,0,0" VerticalAlignment="Top" Width="153"/>
-            <ComboBox x:Name="destinationFolderCB" HorizontalAlignment="Left" Margin="35,217,0,0" VerticalAlignment="Top" Width="153" SelectionChanged="DestinationFolderCB_SelectionChanged"/>
+            <ComboBox x:Name="destinationFolderCB" HorizontalAlignment="Left" Margin="35,217,0,0" VerticalAlignment="Top" Width="134" SelectionChanged="DestinationFolderCB_SelectionChanged"/>
             <Label Content="Destination Directory:" Margin="35,186,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="153"/>
             <ComboBox x:Name="fileTypeCB" Margin="0,120,35,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153" SelectionChanged="FileTypeCB_SelectionChanged"/>
             <Label Content="File Types" Margin="0,89,35,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="153"/>
@@ -61,7 +61,8 @@
                     </Style>
                 </Label.Style>
             </Label>
-            <Button x:Name="if_selector_button" Content="" HorizontalAlignment="Center" Margin="0,117,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.012,-0.097" Width="28" Height="28" Click="if_selector_button_Click" Visibility="Hidden"/>
+            <Button x:Name="Adv_Input_Button" Content="" HorizontalAlignment="Left" Margin="174,120,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.05,0.103" Height="22" Width="25" Click="Adv_Input_Button_Click" Visibility="Hidden"/>
+            <Button x:Name="Adv_Dest_Button" Content="" HorizontalAlignment="Left" Margin="174,217,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.05,0.103" Height="22" Width="25" Click="Adv_Dest_Button_Click" Visibility="Hidden"/>
 
         </Grid>
     </Border>
