@@ -21,16 +21,18 @@ namespace LAVtechQuickRecover
     public partial class ChooseFolderWindow : Window
     {
         public string SelectedFolder { get; private set; }
-        public ChooseFolderWindow(string winTitle="choose folder")
+        public ChooseFolderWindow(string winTitle = "choose folder")
         {
 
             InitializeComponent();
             this.Title = winTitle;
 
             //holdoff on this point for now.
-            PopulateInputTreeViewAsync();
+            //PopulateInputTreeViewAsync(); //it works but proves to be very inefficient.
         }
-
+    }
+}
+        /*
         private async Task PopulateInputTreeViewAsync()
         {
             foreach (DriveInfo drive in DriveInfo.GetDrives())
@@ -224,5 +226,5 @@ namespace LAVtechQuickRecover
                 
             }
         }
-    }
-}
+    
+*/
