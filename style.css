@@ -13,15 +13,62 @@ img{
     box-shadow: 0 0 10px black;
 }
 body{
+    margin:0;
+    padding:0;
     font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif; 
     /* font-size: 24px;  */
     font-style: normal; 
     font-variant: normal; 
     font-weight: 400; 
     line-height: 26.4px; 
-    margin: 5% 10%;
+   
+    background-color: antiquewhite;
     /* text-align: center; */
+}
+.page-body{
+    margin: 5% 10%;
 }
 #center-explanation{
     text-align: center;
+}
+.footer-spacer{
+    height: 70px;
+}
+#footer{
+    text-decoration: none;
+    line-height: 1;
+    margin: 0 auto;
+    width: 100%;
+    position: fixed;
+    bottom: 0px;
+    background: rgb(55, 55, 55);
+    height: 70px;
+}
+#footer-text{
+    text-align: center;
+    margin: 0 auto;
+    color: salmon;
+}.socials{
+    text-align: center;
+    margin: 0 auto;
+    color: salmon;
+    text-decoration: none;
+}
+.socials:hover{
+    color: deeppink;
+}
+.center{
+    margin: 0 auto;
+}
+a:link{
+    text-decoration: none;
+    color: salmon;
+}
+a:visited{
+    text-decoration: none;
+    color:deeppink;
+}
+a:hover{
+    color: deeppink;
+    text-shadow: 0 0 5px white;
 }

@@ -30,6 +30,12 @@ namespace LAVtechQuickRecover
             //holdoff on this point for now.
             //PopulateInputTreeViewAsync(); //it works but proves to be very inefficient.
         }
+
+        //As seen with the code in comments below: the aim was to allow user to search for a directory, adn then select it. -> sadly my code is very inefficient, even moving it to become Async didn't resolve the issue
+        // current stance: either migrate to Ookii dialogs- or just work around it. 
+        // will pick up here when there is a query to do so, so far, my best time is spent on building other projects*
+
+
     }
 }
         /*
